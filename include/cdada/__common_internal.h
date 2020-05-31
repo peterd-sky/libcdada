@@ -43,6 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include "cdada/utils.h"
 #include <map>
+#include <iostream>
+#include <iomanip>
 
 /**
 * @file cdada/common_int.h
@@ -144,6 +146,53 @@ inline bool operator==(const cdada_u2048_t& a1, const cdada_u2048_t& a2){
 						sizeof(cdada_u2048_t)) == 0;
 }
 
+//For dumpers
+inline std::ostream& operator<<(std::ostream& os, const uint8_t& a){
+	os << (uint16_t)a;
+	return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const cdada_u128_t& a){
+	uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a;
+	os << std::hex << std::setfill('0') << std::setw(2);
+	for(int i=0;i<16;++i, ++p)
+		os << (uint16_t)*p;
+	os << std::dec;
+	return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const cdada_u256_t& a){
+	uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a;
+	os << std::hex << std::setfill('0') << std::setw(2);
+	for(int i=0;i<32;++i, ++p)
+		os << (uint16_t)*p;
+	os << std::dec;
+	return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const cdada_u512_t& a){
+	uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a;
+	os << std::hex << std::setfill('0') << std::setw(2);
+	for(int i=0;i<64;++i, ++p)
+		os << (uint16_t)*p;
+	os << std::dec;
+	return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const cdada_u1024_t& a){
+	uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a;
+	os << std::hex << std::setfill('0') << std::setw(2);
+	for(int i=0;i<128;++i, ++p)
+		os << (uint16_t)*p;
+	os << std::dec;
+	return os;
+}
+inline std::ostream& operator<<(std::ostream& os, const cdada_u2048_t& a){
+	uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a;
+	os << std::hex << std::setfill('0') << std::setw(2);
+	for(int i=0;i<256;++i, ++p)
+		os << (uint16_t)*p;
+	os << std::dec;
+	return os;
+}
+
 //Generators for custom types
 /**
 * @internal Default memcp comparison operator
@@ -163,10 +212,24 @@ inline bool operator==(const cdada_u2048_t& a1, const cdada_u2048_t& a2){
 	}
 
 /**
+* @internal Default dumper operator
+*/
+#define __CDADA_CUSTOM_GEN_DUMP_OP(TYPE) \
+	inline std::ostream& operator<<(std::ostream& os, const TYPE & a){ \
+		uint8_t* __attribute__((__may_alias__)) p = (uint8_t*)&a; \
+		os << std::hex << std::setfill('0') << std::setw(2); \
+		for(uint32_t i=0;i<sizeof( TYPE );++i, ++p) \
+			os << (uint16_t)*p; \
+		os << std::dec; \
+		return os; \
+	}
+
+/**
 * Define C++ necessary operators for the type
 */
 #define CDADA_CUSTOM_GEN_MEMCP_OPERATORS(TYPE) \
 	__CDADA_CUSTOM_GEN_MEMCP_EQ_OP(TYPE); \
-	__CDADA_CUSTOM_GEN_MEMCP_LESS_OP(TYPE)
+	__CDADA_CUSTOM_GEN_MEMCP_LESS_OP(TYPE); \
+	__CDADA_CUSTOM_GEN_DUMP_OP(TYPE)
 
 #endif //__CDADA_COMMON_INT__
